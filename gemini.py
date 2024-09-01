@@ -4,14 +4,18 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 from datetime import datetime
 
-# Load environment variables from .env file
-load_dotenv()
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-
 
 def gemini_request(input="", system="Answer in detail", model_name="gemini-1.5-flash",
-                   max_tokens=8192, response_type="text", history=[], stream=False):
+                   max_tokens=8192, response_type="text", history=[], stream=False, API_KEY="from .env"):
     response_type = "application/json" if response_type == "json" else "text/plain"
+    if API_KEY:
+        genai.configure(api_key=API_KEY)
+    else:
+        # Load environment variables from .env file
+        load_dotenv()
+        genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+        
+        
     generation_config = {
         "temperature": 1,
         "top_p": 0.95,
@@ -36,7 +40,7 @@ def gemini_request(input="", system="Answer in detail", model_name="gemini-1.5-f
 
 class GeminiPlus:
     def __init__(self, model_name="gemini-1.5-flash", system="Answer in detail",
-                 max_tokens=8192, response_type="text"):
+                 max_tokens=8192, response_type="text", API_KEY = None):
         self.model_name = model_name
         self.system = system
         self.chat_histories = self.load_chat_histories('chat_histories.json')
@@ -44,6 +48,7 @@ class GeminiPlus:
         self.max_tokens = max_tokens
         self.response_type = "application/json" if response_type == "json" else "text/plain"
         self.convo_timestamps = {}
+        self.API_KEY = API_KEY
 
     @staticmethod
     def load_chat_histories(filename):
@@ -90,7 +95,7 @@ class GeminiPlus:
         try:
             response_text = gemini_request(user_input, system=self.system,
                                           model_name=self.model_name, max_tokens=self.max_tokens,
-                                          response_type=self.response_type, history=self.chat_history, stream=True)
+                                          response_type=self.response_type, history=self.chat_history, stream=True, API_KEY=self.API_KEY)
             response_history = ""
             for chunk in response_text:
                 response_history += chunk

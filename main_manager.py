@@ -21,6 +21,8 @@ install()
 load_dotenv()
 console = Console()
 
+API_KEY = None
+
 # Global Styles
 ERROR_STYLE = Style(color="red", bold=True)
 
@@ -118,7 +120,7 @@ def extract_and_save_data(user_input: str) -> None:
     """Extracts data from user input using an LLM and saves it to memory."""
     try:
         system_prompt = construct_data_extraction_prompt()
-        data_extraction_llm = gemini_request(input=user_input, system=system_prompt, response_type="text")
+        data_extraction_llm = gemini_request(input=user_input, system=system_prompt, response_type="text", API_KEY=API_KEY)
 
         try:
             start_index = data_extraction_llm.find('{')
@@ -318,7 +320,8 @@ def memory_compression() -> None:
         deduplication_llm = gemini_request(
             input=json.dumps(memory_data_for_gemini),
             system=system_prompt,
-            response_type="json"
+            response_type="json",
+            API_KEY=API_KEY
         )
 
         try:
@@ -331,9 +334,12 @@ def memory_compression() -> None:
         console.print(f"[bold red]Error:[/] Failed to compress memory: {e}", style=ERROR_STYLE)
 
 
-def run_chat():
+def run_chat(model="gemini-1.5-flash", GEMINI_API_KEY=None):
     """Main function to run the chat interface."""
-    gemini_instance = GeminiPlus(model_name="gemini-1.5-flash-exp-0827")
+    global API_KEY
+    API_KEY = GEMINI_API_KEY
+    
+    gemini_instance = GeminiPlus(model_name=model, API_KEY=API_KEY)
 
     while True:
         # Create a table for the menu
