@@ -109,6 +109,7 @@ def run_chat(model="gemini-1.5-flash", GEMINI_API_KEY=None):
 
 def chat_loop(gemini_instance: GeminiPlus):
     """Handles the main chat loop within a conversation."""
+    console.print("\n[bold #a276ff]Enter 'exit' or 'quit' to go back to main menu[/]")
     while True:
         global user_input
         user_input = Prompt.ask("\n[bold #ADD8E6]You[/]")
@@ -122,8 +123,8 @@ def chat_loop(gemini_instance: GeminiPlus):
             for chunk in main_llm_response:
                 response += chunk
                 live.update(Panel.fit(Markdown(response), title="[bold #90EE90]AI[/]", border_style="green"))
-            update_env('num_hist_memory', 1, user_input, API_KEY)
-            update_env('num_conversations', 1 , API_KEY=API_KEY)
+        update_env('num_hist_memory', 1, user_input, API_KEY)
+        update_env('num_conversations', 1 , API_KEY=API_KEY)
 
 
 if __name__ == "__main__":
