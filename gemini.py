@@ -5,8 +5,8 @@ from dotenv import load_dotenv
 from datetime import datetime
 
 
-def gemini_request(input="", system="Answer in detail", model_name="gemini-1.5-flash",
-                   max_tokens=8192, response_type="text", history=[], stream=False, API_KEY="from .env"):
+def gemini_request(input="", system="Answer in detail", model_name="gemini-1.5-flash-exp-0827",
+                   max_tokens=8192, response_type="text", history=[], stream=False, API_KEY=None):
     response_type = "application/json" if response_type == "json" else "text/plain"
     if API_KEY:
         genai.configure(api_key=API_KEY)
@@ -29,13 +29,13 @@ def gemini_request(input="", system="Answer in detail", model_name="gemini-1.5-f
         system_instruction=system, 
     )
     chat_session = model.start_chat(history=history)
-    if stream:
+    if stream is True:
         response = chat_session.send_message(input ,stream=True)
         for chunk in response:
             yield chunk.text
     else:
-        response = chat_session.send_message(input)
-        return response.text
+        response = chat_session.send_message(input, stream=False)
+        yield response.text
 
 
 class GeminiPlus:
@@ -158,8 +158,9 @@ def run_chat():
 
 
 if __name__ == "__main__":
-    run_chat()
-    # gems = gemini_request(input="Explain friction in detail", stream=True)
-    # for chunk in gems:
-    #     print(chunk)
+    # run_chat()
+    gems = gemini_request(input="Explain friction in detail", stream=False)
+    # print(gems)
+    for chunk in gems:
+        print(chunk)
     
